@@ -1,7 +1,8 @@
 package com.todolist.business;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +18,7 @@ public class TodoBusiness {
 	@Autowired
 	private TodoDao todoDao;
 
-	public List<Todo> getTodoList() {
+	public List<Todo> getTodoList() {  
 
 		List<Todo> todoListToReturn = new ArrayList<>();
 		
@@ -27,11 +28,28 @@ public class TodoBusiness {
 				Todo todo = new Todo();
 				todo.setTaskId((Integer) listItem.get("TASKID"));
 				todo.setTaskName((String) listItem.get("TASKNAME"));
-				todo.setTaskEndDate((Date) listItem.get("TASKENDDATE"));
-				todo.setTaskStatus((boolean) listItem.get("TASKSTATUS").equals("Y") ? true : false);
-				todoListToReturn.add(todo);
+				todo.setTaskEndDate(((Date) listItem.get("TASKENDDATE")).toLocalDate()); 
+				todo.setTaskStatus((String) listItem.get("TASKSTATUS"));
+				todoListToReturn.add(todo);  
 			}
 		}
 		return todoListToReturn;
+	}
+	  
+	public List<Todo> insertTodoList(Todo todo) {  
+		
+		if(todo.getTaskName()!=null) {
+			todoDao.insertTodoList(todo);
+		}
+		
+		return null;
+	}
+
+	public int deleteTask(int taskId) { 
+		return todoDao.deleteTask(taskId);
+	}
+
+	public int updateTask(Todo todo) { 
+		return todoDao.updateTask(todo);
 	}
 }

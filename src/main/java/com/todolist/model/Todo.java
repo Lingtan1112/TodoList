@@ -1,8 +1,9 @@
 package com.todolist.model;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import org.springframework.format.annotation.DateTimeFormat;
+
 
 public class Todo {
 
@@ -13,8 +14,18 @@ public class Todo {
 	}
 	private int taskId;
 	private String taskName;
-	private Date taskEndDate;
-	private boolean taskStatus;
+	
+	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)	
+	private LocalDate taskEndDate;
+	
+	public LocalDate getTaskEndDate() {
+		return taskEndDate;
+	}
+	
+	public void setTaskEndDate(LocalDate taskEndDate) { 
+		this.taskEndDate = taskEndDate;
+	}
+	private String taskStatus;
 	public int getTaskId() {
 		return taskId;
 	}
@@ -25,20 +36,14 @@ public class Todo {
 		return taskName;
 	}
 	
-	@DateTimeFormat(pattern = "yyyy-mm-dd")
 	public void setTaskName(String taskName) {
 		this.taskName = taskName;
 	}
-	public Date getTaskEndDate() {
-		return taskEndDate;
-	}
-	public void setTaskEndDate(Date taskEndDate) {
-		this.taskEndDate = taskEndDate;
-	}
-	public boolean isTaskStatus() {
+	
+	public String getTaskStatus() {
 		return taskStatus;
 	}
-	public void setTaskStatus(boolean taskStatus) {
+	public void setTaskStatus(String taskStatus) {
 		this.taskStatus = taskStatus;
 	}
 	
