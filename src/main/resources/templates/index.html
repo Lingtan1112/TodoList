@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+
+<style>
+.container{
+	font-size:15px;
+	padding: 50px;
+	margin: 50px 0px;
+}
+
+.pd-5{
+	padding:5px;
+	padding-left:0px;
+}
+
+
+
+</style>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+<title>Todo App</title>
+</head>
+<body>
+
+<div class="container">
+	<div class="pd-5">
+		<button type="button" id = "addTask" class="btn btn-success btn-lg">Add Task</button>
+	</div>
+
+	<table class="table ">
+	  <thead class="table-dark">
+	    <tr>
+	      <th scope="col">S.no</th>
+	      <th scope="col">Task Name</th>
+	      <th scope="col">Target Date</th>
+	      <th scope="col">Status</th>
+	      <th scope="col">Actions</th>
+	    </tr>
+	  </thead>
+	  <tbody id="task-list">
+
+	  </tbody>
+	</table>
+</div>
+	
+</body>
+
+<script>
+
+$(document).ready(function(){
+	
+
+	$.ajax({
+		 url:'http://localhost:8080/todo/list',
+		 type:'GET',
+		 success:function(res){
+			if($("#task-list").children.length==0){
+				$("#task-list").append("<tr><td colspan=5 class='text-center'>" + "<font color='red'>No Records Found</font>" + "</td></tr>");
+			}else{
+				for(let i of res){
+					$("#task-list").append(`<tr><td>${$("#task-list").children().length+1}</td><td>${i.taskName}</td><td>${i.taskEndDate}</td><td>${i.taskStatus==true ? 'Completed':'Pending'}</td><td><button type="button" id = "editTask" class="btn btn-info btn-lg">Edit</button><button type="button" id = "deleteTask" style="margin-left:6px;" class="btn btn-danger btn-lg">Delete</button></td></tr>`);
+				} 
+			}
+		 }
+	});
+	
+	
+	
+	
+});
+
+$(document).on('click','#addTask',function(){
+	$("#task-list").append(`<tr><td>${$("#task-list").children().length+1}</td><td><input type="text" id="taskName" placeholder="Enter the task title"></td><td><input type="date" id="taskDate" placeholder="Enter the task End date"></td><td>Pending</td><td><button type="button" id = "saveTask" class="btn btn-success btn-lg">Save Task</button></td></tr>`);
+});
+
+$(document).on('click','#saveTask',function(){
+	
+	let taskName = $("#taskName").val();
+	let taskDate = $("#taskDate").val();
+	let taskStatus = false;
+	
+	let data = {'taskName':taskName, 'taskDate':taskDate,'taskStatus':taskStatus};
+	
+	$.ajax({
+		 url:'http://localhost:8080/todo/addtask',
+		 type:'post',
+		 data,data,
+		 success:function(res){
+			if(!($("#task-list").children() == 1)){
+				$("#task-list").children().last().remove();
+			}
+			if($("#task-list").children.length==0){
+				$("#task-list").append("<tr><td colspan=5 class='text-center'>" + "<font color='red'>No Records Found</font>" + "</td></tr>");
+			}else{
+				$("#task-list").append(`<tr><td>${$("#task-list").children().length+1}</td><td>${res.taskName}</td><td>${res.taskEndDate}</td><td>${res.taskStatus}</td><td><button type="button" id = "editTask" class="btn btn-info btn-lg">Edit</button><button type="button" id = "deleteTask" style="margin-left:6px;"  class="btn btn-danger .ml-1 btn-lg">Delete</button></td></tr>`);
+			}
+		 }
+	});
+	
+});
+
+</script>
+</html>
