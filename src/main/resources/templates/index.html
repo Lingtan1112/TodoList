@@ -171,9 +171,7 @@ $(document).on('click','#updateTask',function(){
 		 data,data,
 		 success:function(res){
 			$("#task-list").children().remove();
-			fetchList();
-			//$("#task-list").append(`<tr><td>${$("#task-list").children().length+1}</td><td style='width:300px;'>${res.taskName}</td><td style='width:300px;'>${res.taskEndDate}</td><td>${res.taskStatus}</td><td><button type="button" class="btn btn-info editTask btn-lg">Edit</button><button type="button" id = "deleteTask" style="margin-left:6px;"  class="btn btn-danger .ml-1 btn-lg">Delete</button></td></tr>`);
-			
+			fetchList();		
 		 }
 	});
 	
