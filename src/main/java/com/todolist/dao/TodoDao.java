@@ -8,35 +8,29 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.todolist.model.Todo;
+import com.todolist.repo.TodoRepository;
 
 @Repository
 public class TodoDao {
 	
+
 	@Autowired
-	private JdbcTemplate jdbcTemplate;
+	private TodoRepository todoRepository;
 	
-	public List<Map<String, Object>> getTodoList() {
-		String sql = "select task_id as taskId, task_name as taskName, task_status as taskStatus, task_end_date as taskEndDate from todo";
-		List<Map<String, Object>> taskList = jdbcTemplate.queryForList(sql);
-		return taskList;
+	public List<Todo> getTodoList() {
+		return todoRepository.findAll();
 	}
 
-	public void insertTodoList(Todo todo) {
-		String sql = "insert into todo (task_name, task_end_date, task_status) values (?,?,?)";
-		int insertedData = jdbcTemplate.update(sql, todo.getTaskName(),todo.getTaskEndDate(),todo.getTaskStatus());
-		System.out.println(insertedData);
+	public Todo insertTodoList(Todo todo) {
+		return todoRepository.save(todo);
 	}
 
-	public int deleteTask(int taskId) {
-		String sql = "delete from todo where task_id = (?)";
-		int deletedLength = jdbcTemplate.update(sql,taskId);
-		return deletedLength;
+	public void deleteTask(long taskId) {
+		todoRepository.deleteById(taskId);
 	}
 
-	public int updateTask(Todo todo) {
-		String sql = "update todo set task_name = ?, task_end_date = ?, task_status = ? where task_id = (?)";
-		int deletedLength = jdbcTemplate.update(sql,todo.getTaskName(), todo.getTaskEndDate(),todo.getTaskStatus(), todo.getTaskId());
-		return deletedLength;
+	public Todo updateTask(Todo todo) {
+		return todoRepository.save(todo);
 	}
 
 }

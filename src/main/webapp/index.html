@@ -3,74 +3,179 @@
 <head>
 <meta charset="ISO-8859-1">
 
+<style>
+.container{
+	font-size:15px;
+	padding: 50px;
+	margin: 50px 0px;
+}
 
+.pd-5{
+	padding:5px;
+	padding-left:0px;
+}
+
+
+
+</style>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-<title>Example code</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+<title>Todo App</title>
 </head>
 <body>
-<table class="table">
-  <thead class="thead-dark">
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">First</th>
-      <th scope="col">Last</th>
-      <th scope="col">Handle</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th scope="row">1</th>
-      <td>Mark</td>
-      <td>Otto</td>
-      <td>@mdo</td>
-    </tr>
-    <tr>
-      <th scope="row">2</th>
-      <td>Jacob</td>
-      <td>Thornton</td>
-      <td>@fat</td>
-    </tr>
-    <tr>
-      <th scope="row">3</th>
-      <td>Larry</td>
-      <td>the Bird</td>
-      <td>@twitter</td>
-    </tr>
-  </tbody>
-</table>
 
-<table class="table">
-  <thead class="thead-light">
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">First</th>
-      <th scope="col">Last</th>
-      <th scope="col">Handle</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th scope="row">1</th>
-      <td>Mark</td>
-      <td>Otto</td>
-      <td>@mdo</td>
-    </tr>
-    <tr>
-      <th scope="row">2</th>
-      <td>Jacob</td>
-      <td>Thornton</td>
-      <td>@fat</td>
-    </tr>
-    <tr>
-      <th scope="row">3</th>
-      <td>Larry</td>
-      <td>the Bird</td>
-      <td>@twitter</td>
-    </tr>
-  </tbody>
-</table>
+<div class="container">
+	<div class="pd-5">
+		<button type="button" id = "addTask" class="btn btn-success btn-lg">Add Task</button>
+	</div>
+
+	<table class="table ">
+	  <thead class="table-dark">
+	    <tr>
+	      <th scope="col">S.no</th>
+	      <th style='width:300px;' scope="col">Task Name</th>
+	      <th style='width:300px;' scope="col">Target Date</th>
+	      <th scope="col">Status</th>
+	      <th scope="col">Actions</th>
+	    </tr>
+	  </thead>
+	  <tbody id="task-list">
+		
+	  </tbody>
+	</table>
+</div>
 	
 </body>
+
+<script>
+
+var CONTEXT_PATH = window.location.pathname.substring(0, window.location.pathname.indexOf("/",2));
+$(document).ready(function(){
+	fetchList();
+});
+
+
+
+function fetchList(){
+	$.ajax({
+		 url:CONTEXT_PATH+'/todo/list',
+		 type:'GET',
+		 success:function(res){
+			if(res.length==0){
+				$("#task-list").append("<tr id='empty-records'><td colspan=5 class='text-center'>" + "<font color='red'>No Records Found</font>" + "</td></tr>");
+			}else{
+				$("#task-list").children().remove();
+				for(let i of res){
+					$("#task-list").append(`<tr class='todo-list-item'><td>${$("#task-list").children().length+1}</td><td  task-name=${i.taskName} class='task-name'>${i.taskName}</td><td task-end-date=${i.taskEndDate} class='task-end-date'>${i.taskEndDate}</td><td task-status=${i.taskStatus} class='task-status'>${i.taskStatus}</td><td><button type="button" class="btn btn-info btn-lg editTask edit-${i.taskId}">Edit</button><button type="button" id = "deleteTask" style="margin-left:6px;" task-id=${i.taskId} class="btn btn-danger deleteTask btn-lg">Delete</button></td></tr>`);
+					$(".edit-"+i.taskId+"").data('taskData',i);
+				} 
+			}
+		 }
+	});
+
+}
+
+$(document).on('click','.editTask', function(){
+	let taskData = $(this).data("taskData");
+	
+	let dropdown = `<select id="status">
+					    <option id="Inprogress">Inprogress</option>
+					    <option id="Pending">Pending</option>
+					    <option id="Completed">Completed</option>
+					</select>`;
+	
+	let newTaskFields = `<tr>
+							<td>${$("#task-list").children().length+1}</td>
+							<td style='width:300px;'><input type="text" style="width:170px; outline:none; border:none;" id="taskName" value="${taskData.taskName}" placeholder="Enter the task title"></td>
+							<td style='width:300px;'><input type="date" id="taskDate" value=${taskData.taskEndDate} placeholder="Enter the task End date"></td>
+							<td>${dropdown}</td>
+							<td><button type="button" id = "updateTask" task-id=${taskData.taskId} class="btn btn-success btn-lg">Update Task</button></td>
+						</tr>`;
+	
+	$(".edit-"+taskData.taskId+"").closest(".todo-list-item").replaceWith(newTaskFields);	
+	$('#'+taskData.taskStatus+'').attr('selected',true);
+	
+});
+
+$(document).on('click','.deleteTask', function(){
+	let taskId = $(this).attr("task-id");
+	
+	$.ajax({
+		 url:CONTEXT_PATH+'/todo/deletetask?taskId='+taskId+'',
+		 type:'POST',
+		 success:function(res){
+			$("#task-list").children().remove();
+			fetchList();
+		 }
+	});
+});
+
+$(document).on('click','#addTask',function(){
+	
+	$("#empty-records").remove();
+	let dropdown = `
+						<select id="status">
+						    <option>Inprogress</option>
+						    <option>Pending</option>
+						    <option>Completed</option>
+						</select>
+					`;
+					
+	if(!($("#saveTask").length==1)){
+		$("#task-list").append(`<tr>
+									<td>${$("#task-list").children().length+1}</td>
+									<td style='width:300px;'><input type="text" style="width:170px; outline:none; border:none;" id="taskName" placeholder="Enter the task title"></td>
+									<td style='width:300px;'><input type="date" id="taskDate" placeholder="Enter the task End date"></td>
+									<td>${dropdown}</td>
+									<td><button type="button" id = "saveTask" class="btn btn-success btn-lg">Save Task</button></td>
+								</tr>`);
+	}
+});
+
+$(document).on('click','#saveTask',function(){
+	
+	let taskName = $("#taskName").val();
+	let taskDate = $("#taskDate").val();
+	let taskStatus = $("#status").val();
+	
+	let data = {'taskName':taskName, 'taskEndDate':taskDate,'taskStatus':taskStatus};
+	
+	$.ajax({
+		 url:CONTEXT_PATH+'/todo/addtask',
+		 type:'post',
+		 data,data,
+		 success:function(res){
+			$("#task-list").children().remove();
+			fetchList();
+			//$("#task-list").append(`<tr><td>${$("#task-list").children().length+1}</td><td style='width:300px;'>${res.taskName}</td><td style='width:300px;'>${res.taskEndDate}</td><td>${res.taskStatus}</td><td><button type="button" class="btn btn-info editTask btn-lg">Edit</button><button type="button" id = "deleteTask" style="margin-left:6px;"  class="btn btn-danger .ml-1 btn-lg">Delete</button></td></tr>`);
+			
+		 }
+	});
+	
+});
+
+$(document).on('click','#updateTask',function(){
+	
+	let taskId = $(this).attr("task-id");
+	let taskName = $("#taskName").val();
+	let taskDate = $("#taskDate").val();
+	let taskStatus = $("#status").val();
+	
+	let data = {'taskId':taskId,'taskName':taskName, 'taskEndDate':taskDate,'taskStatus':taskStatus};
+	
+	$.ajax({
+		 url:CONTEXT_PATH+'/todo/updatetask',
+		 type:'post',
+		 data,data,
+		 success:function(res){
+			$("#task-list").children().remove();
+			fetchList();		
+		 }
+	});
+	
+});
+</script>
 </html>

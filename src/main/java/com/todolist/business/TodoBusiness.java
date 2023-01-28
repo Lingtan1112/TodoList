@@ -1,10 +1,6 @@
 package com.todolist.business;
 
-import java.sql.Date;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,37 +15,30 @@ public class TodoBusiness {
 	private TodoDao todoDao;
 
 	public List<Todo> getTodoList() {  
-
-		List<Todo> todoListToReturn = new ArrayList<>();
-		
-		List<Map<String, Object>> todoList = todoDao.getTodoList();
-		if (todoList != null) {
-			for (Map<String, Object> listItem : todoList) {
-				Todo todo = new Todo();
-				todo.setTaskId((Integer) listItem.get("TASKID"));
-				todo.setTaskName((String) listItem.get("TASKNAME"));
-				todo.setTaskEndDate(((Date) listItem.get("TASKENDDATE")).toLocalDate()); 
-				todo.setTaskStatus((String) listItem.get("TASKSTATUS"));
-				todoListToReturn.add(todo);  
-			}
-		}
-		return todoListToReturn;
+		return todoDao.getTodoList();
 	}
 	  
-	public List<Todo> insertTodoList(Todo todo) {  
-		
+	public Todo insertTodoList(Todo todo) throws Exception {  
+		Todo todoData = null;
 		if(todo.getTaskName()!=null) {
-			todoDao.insertTodoList(todo);
+			todoData = todoDao.insertTodoList(todo);
+		}else {
+			throw new Exception("Cannot save empty body");
 		}
 		
-		return null;
+		return todoData;
 	}
 
-	public int deleteTask(int taskId) { 
-		return todoDao.deleteTask(taskId);
+	public void deleteTask(long taskId) throws Exception { 
+		try {
+			todoDao.deleteTask(taskId);
+		}catch(Exception e) {
+			throw new Exception("Exception occured");
+		}
+		
 	}
 
-	public int updateTask(Todo todo) { 
+	public Todo updateTask(Todo todo) { 
 		return todoDao.updateTask(todo);
 	}
 }

@@ -2,9 +2,17 @@ package com.todolist.model;
 
 import java.time.LocalDate;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
 
+@Entity
+@Table(name="todo")
 public class Todo {
 
 	@Override
@@ -12,7 +20,12 @@ public class Todo {
 		return "Todo [taskId=" + taskId + ", taskName=" + taskName + ", taskEndDate=" + taskEndDate + ", taskStatus="
 				+ taskStatus + "]";
 	}
-	private int taskId;
+	
+	@Id
+	@GeneratedValue(strategy =  GenerationType.IDENTITY)
+	private long taskId;
+	
+	
 	private String taskName;
 	
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)	
@@ -26,7 +39,7 @@ public class Todo {
 		this.taskEndDate = taskEndDate;
 	}
 	private String taskStatus;
-	public int getTaskId() {
+	public long getTaskId() {
 		return taskId;
 	}
 	public void setTaskId(int taskId) {
